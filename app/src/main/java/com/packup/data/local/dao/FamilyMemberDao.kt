@@ -52,6 +52,9 @@ interface FamilyMemberDao {
     @Query("UPDATE family_members SET photoUri = :photoUri, updatedAt = :now, updatedByDeviceId = :deviceId WHERE id = :id")
     suspend fun updatePhotoUri(id: String, photoUri: String, now: Long = System.currentTimeMillis(), deviceId: String = "")
 
+    @Query("UPDATE family_members SET sortOrder = :sortOrder, updatedAt = :now, updatedByDeviceId = :deviceId WHERE id = :id")
+    suspend fun updateSortOrder(id: String, sortOrder: Int, now: Long = System.currentTimeMillis(), deviceId: String = "")
+
     @Query("DELETE FROM family_members WHERE id = :id")
     suspend fun delete(id: String)
 

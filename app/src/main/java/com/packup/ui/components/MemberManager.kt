@@ -67,6 +67,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.geometry.Size
+import androidx.compose.material.icons.outlined.ArrowUpward
+import androidx.compose.material.icons.outlined.ArrowDownward
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -94,6 +96,8 @@ fun MemberManagerSheet(
     onDeleteMember: (String) -> Unit,
     onSetMemberIcon: (String, String) -> Unit,
     onSetMemberPhoto: (String, String) -> Unit,
+    onMoveMemberUp: (String) -> Unit,
+    onMoveMemberDown: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
     val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
@@ -109,6 +113,8 @@ fun MemberManagerSheet(
             onDeleteMember = onDeleteMember,
             onSetMemberIcon = onSetMemberIcon,
             onSetMemberPhoto = onSetMemberPhoto,
+            onMoveMemberUp = onMoveMemberUp,
+            onMoveMemberDown = onMoveMemberDown,
             onDismiss = onDismiss
         )
     }
@@ -283,6 +289,8 @@ internal fun MemberManagerContent(
     onDeleteMember: (String) -> Unit,
     onSetMemberIcon: (String, String) -> Unit,
     onSetMemberPhoto: (String, String) -> Unit,
+    onMoveMemberUp: (String) -> Unit,
+    onMoveMemberDown: (String) -> Unit,
     onDismiss: () -> Unit,
     showHeader: Boolean = true,
 ) {
@@ -360,7 +368,7 @@ internal fun MemberManagerContent(
                 .verticalScroll(rememberScrollState())
                 .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            members.forEach { member ->
+            members.forEachIndexed { index, member ->
                 Column {
                     Row(
                         modifier = Modifier
@@ -435,11 +443,37 @@ internal fun MemberManagerContent(
                                 modifier = Modifier.weight(1f)
                             )
                             IconButton(
+                                onClick = { if (index > 0) onMoveMemberUp(member.id) },
+                                modifier = Modifier.size(24.dp),
+                                enabled = index > 0
+                            ) {
+                                if (index > 0) {
+                                    Icon(
+                                        Icons.Outlined.ArrowUpward, "Move Up",
+                                        modifier = Modifier.size(14.dp),
+                                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                }
+                            }
+                            IconButton(
+                                onClick = { if (index < members.size - 1) onMoveMemberDown(member.id) },
+                                modifier = Modifier.size(24.dp),
+                                enabled = index < members.size - 1
+                            ) {
+                                if (index < members.size - 1) {
+                                    Icon(
+                                        Icons.Outlined.ArrowDownward, "Move Down",
+                                        modifier = Modifier.size(14.dp),
+                                        tint = colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                                    )
+                                }
+                            }
+                            IconButton(
                                 onClick = {
                                     editingMemberId = member.id
                                     editValue = member.name
                                 },
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(28.dp)
                             ) {
                                 Icon(
                                     Icons.Outlined.Edit, "Rename",
@@ -456,7 +490,7 @@ internal fun MemberManagerContent(
                                         confirmDelete = member.id
                                     }
                                 },
-                                modifier = Modifier.size(32.dp)
+                                modifier = Modifier.size(28.dp)
                             ) {
                                 Icon(
                                     Icons.Outlined.Close, "Delete",

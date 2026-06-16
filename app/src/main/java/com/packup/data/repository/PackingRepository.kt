@@ -201,6 +201,53 @@ class PackingRepository @Inject constructor(
         }
     }
 
+    suspend fun moveMemberUp(id: String) {
+        val members = familyMemberDao.getAllMembersSync()
+        val index = members.indexOfFirst { it.id == id }
+        if (index > 0) {
+            val did = ensureDeviceId()
+            val now = System.currentTimeMillis()
+            val current = members[index]
+            val previous = members[index - 1]
+
+            val currentOrder = current.sortOrder
+            val prevOrder = previous.sortOrder
+            
+            // If they happen to have the exact same sort order, we need to artificially adjust
+            val newCurrentOrder = if (currentOrder == prevOrder) currentOrder - 1 else prevOrder
+            val newPrevOrder = if (currentOrder == prevOrder) currentOrder else currentOrder
+
+            familyMemberDao.updateSortOrder(current.id, newCurrentOrder, now, did)
+            familyMemberDao.updateSortOrder(previous.id, newPrevOrder, now, did)
+
+            familyMemberDao.getById(current.id)?.let { syncManager.pushFamilyMember(it) }
+            familyMemberDao.getById(previous.id)?.let { syncManager.pushFamilyMember(it) }
+        }
+    }
+
+    suspend fun moveMemberDown(id: String) {
+        val members = familyMemberDao.getAllMembersSync()
+        val index = members.indexOfFirst { it.id == id }
+        if (index != -1 && index < members.size - 1) {
+            val did = ensureDeviceId()
+            val now = System.currentTimeMillis()
+            val current = members[index]
+            val next = members[index + 1]
+
+            val currentOrder = current.sortOrder
+            val nextOrder = next.sortOrder
+
+            val newCurrentOrder = if (currentOrder == nextOrder) currentOrder + 1 else nextOrder
+            val newNextOrder = if (currentOrder == nextOrder) currentOrder else currentOrder
+
+            familyMemberDao.updateSortOrder(current.id, newCurrentOrder, now, did)
+            familyMemberDao.updateSortOrder(next.id, newNextOrder, now, did)
+
+            familyMemberDao.getById(current.id)?.let { syncManager.pushFamilyMember(it) }
+            familyMemberDao.getById(next.id)?.let { syncManager.pushFamilyMember(it) }
+        }
+    }
+
     suspend fun deleteMember(id: String) {
         val itemsToDelete = packingItemDao.getAllItemsSync().filter { it.memberId == id }
         db.withTransaction {

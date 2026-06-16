@@ -1,0 +1,34 @@
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isFamilyId(familyId) {
+      return familyId.matches('^[A-F0-9]{32}$');
+    }
+
+    function isFamilyMember(familyId) {
+      return isSignedIn() &&
+        isFamilyId(familyId) &&
+        firestore.exists(
+          /databases/(default)/documents/families/$(familyId)/members/$(request.auth.uid)
+        );
+    }
+
+    match /families/{familyId}/member_photos/{fileName} {
+      allow read: if isFamilyMember(familyId) &&
+        fileName.matches('^[^/]+\\.jpg$');
+
+      allow write: if isFamilyMember(familyId) &&
+        fileName.matches('^[^/]+\\.jpg$') &&
+        request.resource.size < 5 * 1024 * 1024;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}

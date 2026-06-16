@@ -128,6 +128,8 @@ fun PackingScreen(
             onDeleteMember = viewModel::deleteMember,
             onSetMemberIcon = viewModel::setMemberIcon,
             onSetMemberPhoto = viewModel::setMemberPhoto,
+            onMoveMemberUp = viewModel::moveMemberUp,
+            onMoveMemberDown = viewModel::moveMemberDown,
             onAddCategory = viewModel::addCategory,
             onRenameCategory = viewModel::renameCategory,
             onDeleteCategory = viewModel::deleteCategory,
@@ -290,6 +292,8 @@ private fun SettingsScreen(
     onDeleteMember: (String) -> Unit,
     onSetMemberIcon: (String, String) -> Unit,
     onSetMemberPhoto: (String, String) -> Unit,
+    onMoveMemberUp: (String) -> Unit,
+    onMoveMemberDown: (String) -> Unit,
     onAddCategory: (String, String) -> Unit,
     onRenameCategory: (String, String) -> Unit,
     onDeleteCategory: (String) -> Unit,
@@ -428,6 +432,8 @@ private fun SettingsScreen(
                         onDeleteMember = onDeleteMember,
                         onSetMemberIcon = onSetMemberIcon,
                         onSetMemberPhoto = onSetMemberPhoto,
+                        onMoveMemberUp = onMoveMemberUp,
+                        onMoveMemberDown = onMoveMemberDown,
                         onDismiss = { currentRoute = SettingsRoute.Menu },
                         showHeader = false
                     )

@@ -181,6 +181,14 @@ class PackingViewModel @Inject constructor(
         viewModelScope.launch { repository.setMemberPhoto(id, photoUri) }
     }
 
+    fun moveMemberUp(id: String) {
+        viewModelScope.launch { repository.moveMemberUp(id) }
+    }
+
+    fun moveMemberDown(id: String) {
+        viewModelScope.launch { repository.moveMemberDown(id) }
+    }
+
     fun deleteMember(id: String) {
         if (_activeMemberId.value == id) {
             val fallback = membersWithItems.value
